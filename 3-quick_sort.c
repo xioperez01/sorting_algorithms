@@ -1,47 +1,108 @@
-#include "lists.h"
+#include "sort.h"
+#include <stdlib.h>
+void sort(int *array, size_t beg, size_t size, size_t);
+int check(int *array, size_t beg, size_t end);
+int swap(int *, size_t, size_t, size_t);
 
 /**
- *insert_dnodeint_at_index - function that inserts a new node at a
- * given position.
- *@h: Linkend list
- *@idx: is the index of the list where the new node should be added.
- *@n: List contend
- *Return: the address of the new node, or NULL if it failed
+ * quick_sort - Sorts an array of integers in asceding order using the
+ * quick sort algorithm implementing the Lomuto partition scheme.
+ * @array: Array of integers that need to be sorted.
+ * @size: The size of the array to sort.
  */
-
-dlistint_t *insert_dnodeint_at_index(dlistint_t **h, unsigned int idx, int n)
+void quick_sort(int *array, size_t size)
 {
-	dlistint_t *new_node = malloc(sizeof(dlistint_t));
-	dlistint_t *tmp = malloc(sizeof(dlistint_t));
-	unsigned int i = 0;
+	size_t beg;
 
-	if (h == NULL || *h == NULL || tmp == NULL || new_node == NULL)
-		return (NULL);
+	beg = 0;
+	if (size < 2 || array == NULL)
+		return;
+	size = size - 1;
+	sort(array, beg, size, size + 1);
+}
 
-	tmp = *h;
-	new_node->n = n;
+/**
+ * sort - Does the actual sorting.
+ * @array: Array of integers that need to be sorted.
+ * @beg: The lower bound of the array partition.
+ * @end: The upper bound of the array partion.
+ * @og: The original size of the whole array. Used only for printing.
+ */
+void sort(int *array, size_t beg, size_t end, size_t og)
+{
+	size_t i;
+	size_t j;
+	int piv;
+	int flag;
+	int c;
 
-	if (idx == 0)
+	piv = array[end];
+	j = beg;
+	i = j - 1;
+	flag = 0;
+
+	for (j = beg; j < end; j++)
 	{
-		new_node->prev = NULL;
-		tmp->prev = new_node;
-		new_node->next = tmp;
-		*h = new_node;
-		return (new_node);
-	}
-
-	while (tmp)
-	{
-		if (i == (idx - 1))
+		if (array[j] <= piv)
 		{
-			new_node->prev = tmp;
-			new_node->next = tmp->next;
-			tmp->next = new_node;
-			return (new_node);
+			i++;
+			flag = swap(array, j, i, og);
 		}
-		tmp = tmp->next;
-		i++;
 	}
+	i++;
+	flag = swap(array, j, i, og);
 
-	return (NULL);
+	if (flag == 0)
+	{
+		c = check(array, beg, end);
+		if (c == 1)
+			sort(array, beg, end - 1, og);
+	}
+	else
+	{
+		sort(array, beg, i, og);
+		sort(array, i, end, og);
+	}
+}
+
+/**
+ * swap - Swaps the numbers in the array.
+ * @array: Array of integers that need to be sorted.
+ * @i: The lower bound of the array partition.
+ * @j: The upper bound of the array partion.
+ * @og: The original size of the whole array. Used only for printing.
+ * Return: 1 when a swap happens. 0 otherwise.
+ */
+int swap(int *array, size_t i, size_t j, size_t og)
+{
+	int tmp;
+
+	if (j != i)
+	{
+		tmp = array[i];
+		array[i] = array[j];
+		array[j] = tmp;
+		print_array(array, og);
+		return (1);
+	}
+	return (0);
+}
+
+/**
+ * check - checks if the array portion is already sorted.
+ * @array: Array of integers that need to be sorted.
+ * @beg: The lower bound of the array partition.
+ * @end: The upper bound of the array partion.
+ * Return: 1 if the array is not sorted. 0 otherwise.
+ */
+int check(int *array, size_t beg, size_t end)
+{
+	size_t i;
+
+	for (i = beg; i < end; i++)
+	{
+		if (array[i] > array[i + 1])
+			return (1);
+	}
+	return (0);
 }
